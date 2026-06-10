@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.weather.app"
+    namespace = "com.weather.demo"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.weather.app"
+        applicationId = "com.weather.demo"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -27,27 +27,20 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig = true
     }
 }
 
 dependencies {
     implementation(project(":core"))
-    implementation(project(":core:domain"))
     implementation(project(":core:data"))
-    implementation(project(":core:ui"))
-    implementation(project(":feature:weather"))
-    implementation(project(":feature:citylist"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.lifecycle.viewmodel.compose)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
-
-    implementation(libs.timber)
-    implementation(libs.navigation.compose)
     implementation(libs.hilt.navigation.compose)
 
     val composeBom = platform(libs.compose.bom)

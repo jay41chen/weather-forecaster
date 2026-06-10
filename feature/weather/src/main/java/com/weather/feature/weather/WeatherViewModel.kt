@@ -2,6 +2,9 @@ package com.weather.feature.weather
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.weather.core.config.FeatureFlag
+import com.weather.core.config.FeatureTogglePort
+import com.weather.core.config.isEnabled
 import com.weather.core.domain.GetCurrentWeatherUseCase
 import com.weather.core.domain.GetDailyForecastUseCase
 import com.weather.core.domain.GetHourlyForecastUseCase
@@ -24,11 +27,18 @@ class WeatherViewModel @Inject constructor(
     private val getDailyForecast: GetDailyForecastUseCase,
     private val getHourlyForecast: GetHourlyForecastUseCase,
     private val refreshWeather: RefreshWeatherUseCase,
-    private val getSelectedCity: GetSelectedCityUseCase
+    private val getSelectedCity: GetSelectedCityUseCase,
+    private val featureToggle: FeatureTogglePort
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WeatherUiState())
     val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
+
+    val showHourlyForecast: Boolean
+        get() = featureToggle.isEnabled(FeatureFlag.HOURLY_FORECAST_ENABLED)
+
+    val showOfflineBanner: Boolean
+        get() = featureToggle.isEnabled(FeatureFlag.OFFLINE_BANNER_ENABLED)
 
     init {
         viewModelScope.launch {

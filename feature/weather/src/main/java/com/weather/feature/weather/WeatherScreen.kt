@@ -81,14 +81,16 @@ fun WeatherScreen(
                         ) {
                             item { CurrentWeatherCard(weather = weather, modifier = Modifier.padding(top = 8.dp)) }
                             item { WeatherDetailsRow(weather = weather) }
-                            item {
-                                Text(
-                                    text = "Today",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
+                            if (viewModel.showHourlyForecast) {
+                                item {
+                                    Text(
+                                        text = "Today",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                }
+                                item { HourlyForecastRow(forecasts = uiState.hourlyForecasts) }
                             }
-                            item { HourlyForecastRow(forecasts = uiState.hourlyForecasts) }
                             item {
                                 Text(
                                     text = "5-Day Forecast",

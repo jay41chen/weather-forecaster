@@ -1,0 +1,7 @@
+{
+  "socket_io_enabled": false,
+  "city_search_enabled": true,
+  "hourly_forecast_enabled": true,
+  "offline_banner_enabled": true,
+  "weather_alerts_enabled": false
+}

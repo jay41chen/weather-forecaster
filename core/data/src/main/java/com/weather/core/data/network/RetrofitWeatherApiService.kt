@@ -1,5 +1,6 @@
 package com.weather.core.data.network
 
+import com.weather.core.logging.LogPortFactory
 import com.weather.core.model.City
 import com.weather.core.model.CurrentWeather
 import com.weather.core.model.DailyForecast
@@ -12,11 +13,16 @@ import java.time.ZoneOffset
 import javax.inject.Inject
 
 class RetrofitWeatherApiService @Inject constructor(
-    private val client: RetrofitClient
+    private val client: RetrofitClient,
+    private val logFactory: LogPortFactory
 ) : WeatherApiService {
 
+    private val log = logFactory.create("WeatherApi")
+
     override suspend fun getCurrentWeather(cityName: String): CurrentWeather {
+        val startMs = System.currentTimeMillis()
         val dto = client.getCurrentWeather(cityName)
+        log.d("getCurrentWeather", mapOf("city" to cityName, "latency_ms" to (System.currentTimeMillis() - startMs)))
         return CurrentWeather(
             cityName = dto.name,
             country = dto.sys.country,
@@ -32,7 +38,9 @@ class RetrofitWeatherApiService @Inject constructor(
     }
 
     override suspend fun getForecast(cityName: String): ForecastResult {
+        val startMs = System.currentTimeMillis()
         val dto = client.getForecast(cityName)
+        log.d("getForecast", mapOf("city" to cityName, "latency_ms" to (System.currentTimeMillis() - startMs)))
 
         val todayEpoch = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toEpochSecond()
         val tomorrowEpoch = todayEpoch + 86400
@@ -77,7 +85,9 @@ class RetrofitWeatherApiService @Inject constructor(
     }
 
     override suspend fun getCurrentWeatherByCoords(lat: Double, lon: Double): CurrentWeather {
+        val startMs = System.currentTimeMillis()
         val dto = client.getCurrentWeatherByCoords(lat, lon)
+        log.d("getCurrentWeatherByCoords", mapOf("lat" to lat, "lon" to lon, "latency_ms" to (System.currentTimeMillis() - startMs)))
         return CurrentWeather(
             cityName = dto.name,
             country = dto.sys.country,
@@ -93,7 +103,8 @@ class RetrofitWeatherApiService @Inject constructor(
     }
 
     override suspend fun searchCities(query: String): List<City> {
-        return client.searchCity(query).map { geo ->
+        val startMs = System.currentTimeMillis()
+        val results = client.searchCity(query).map { geo ->
             City(
                 name = geo.name,
                 country = geo.country,
@@ -102,5 +113,7 @@ class RetrofitWeatherApiService @Inject constructor(
                 longitude = geo.lon
             )
         }
+        log.d("searchCities", mapOf("query" to query, "latency_ms" to (System.currentTimeMillis() - startMs)))
+        return results
     }
 }
