@@ -1,0 +1,20 @@
+# Local configuration — never commit
+local.properties
+
+# Gradle
+.gradle/
+build/
+**/build/
+
+# Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# Generated
+**/generated/
+
+# Claude Code
+.claude/
