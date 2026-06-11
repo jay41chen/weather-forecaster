@@ -2,8 +2,10 @@ package com.weather.core.data.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.weather.core.data.BuildConfig
+import com.weather.core.data.logging.LogPortHttpLogger
 import com.weather.core.data.network.RetrofitClient
 import com.weather.core.data.network.RetryInterceptor
+import com.weather.core.logging.LogPortFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,11 +43,15 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(apiKeyInterceptor: Interceptor): OkHttpClient {
+    fun provideOkHttpClient(
+        apiKeyInterceptor: Interceptor,
+        logFactory: LogPortFactory
+    ): OkHttpClient {
+        val httpLogger = LogPortHttpLogger(logFactory.create("OkHttp"))
         return OkHttpClient.Builder()
             .addInterceptor(apiKeyInterceptor)
             .addInterceptor(RetryInterceptor())
-            .addInterceptor(HttpLoggingInterceptor().apply {
+            .addInterceptor(HttpLoggingInterceptor(httpLogger).apply {
                 level = HttpLoggingInterceptor.Level.BASIC
             })
             .build()

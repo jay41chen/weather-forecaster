@@ -16,7 +16,7 @@ object DemoConfigModule {
     @Provides
     @Singleton
     fun provideMockAdapter(): FeatureToggleMockAdapter = FeatureToggleMockAdapter(
-        initialFlags = mapOf(
+        initial = mapOf(
             FeatureFlag.SOCKET_IO_ENABLED.key to false,
             FeatureFlag.CITY_SEARCH_ENABLED.key to true,
             FeatureFlag.HOURLY_FORECAST_ENABLED.key to true,

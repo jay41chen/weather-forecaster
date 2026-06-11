@@ -2,17 +2,18 @@ package com.weather.core.config
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 
 class FeatureToggleMockAdapter(
-    initialFlags: Map<String, Boolean> = emptyMap()
+    initial: Map<String, Any> = emptyMap()
 ) : FeatureTogglePort {
 
-    private val _flags = MutableStateFlow(initialFlags)
-    override val flags: StateFlow<Map<String, Boolean>> = _flags
+    private val _configs = MutableStateFlow(initial)
+    override val configs: StateFlow<Map<String, Any>> = _configs
 
     override suspend fun refresh() { /* no-op */ }
 
     fun setFlag(key: FeatureFlag, enabled: Boolean) {
-        _flags.value = _flags.value + (key.key to enabled)
+        _configs.update { it + (key.key to enabled) }
     }
 }

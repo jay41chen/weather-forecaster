@@ -26,10 +26,12 @@ android {
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.javax.inject)
-    implementation(libs.timber)
+
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.kotlinx.serialization.json)
+
+    testImplementation(libs.junit4)
 }

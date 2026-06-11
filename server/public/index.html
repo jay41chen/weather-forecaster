@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Server Control Panel</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; padding: 24px; color: #333; }
+    h1 { margin-bottom: 24px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .card h2 { font-size: 14px; text-transform: uppercase; color: #888; margin-bottom: 12px; }
+    .stat { font-size: 28px; font-weight: 600; }
+    .stat-label { font-size: 13px; color: #888; margin-top: 4px; }
+    .section { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 16px; }
+    .section h2 { font-size: 16px; margin-bottom: 16px; }
+    .form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 12px; color: #666; }
+    .field input, .field select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .field input:focus, .field select:focus { outline: none; border-color: #4FC3F7; }
+    button { padding: 8px 20px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; }
+    .btn-update { background: #4FC3F7; color: #fff; }
+    .btn-alert { background: #FF7043; color: #fff; }
+    button:hover { opacity: 0.85; }
+    #events { font-family: monospace; font-size: 13px; max-height: 300px; overflow-y: auto; }
+    .log-entry { padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+    .log-update { color: #2196F3; }
+    .log-alert { color: #FF5722; font-weight: 500; }
+    .log-time { color: #999; }
+    .empty { color: #999; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Weather Server Control Panel</h1>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Connections</h2>
+      <div class="stat" id="conn-count">-</div>
+      <div class="stat-label">active Socket.IO clients</div>
+    </div>
+    <div class="card">
+      <h2>Subscriptions</h2>
+      <div id="sub-list" class="stat-label">-</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Send Weather Update</h2>
+    <div class="form-row">
+      <div class="field">
+        <label>City</label>
+        <input id="update-city" value="London">
+      </div>
+      <div class="field">
+        <label>Temperature (°C)</label>
+        <input id="update-temp" type="number" value="25" step="0.1">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <input id="update-desc" value="clear sky">
+      </div>
+      <button class="btn-update" onclick="sendUpdate()">Send Update</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Send Weather Alert</h2>
+    <div class="form-row">
+      <div class="field">
+        <label>City</label>
+        <input id="alert-city" value="London">
+      </div>
+      <div class="field">
+        <label>Type</label>
+        <select id="alert-type">
+          <option value="TEMPERATURE_RISE">Temperature Rise</option>
+          <option value="TEMPERATURE_DROP">Temperature Drop</option>
+          <option value="CATEGORY_CHANGE">Category Change</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Message</label>
+        <input id="alert-msg" value="Temperature rose 6.0°C (test)" size="35">
+      </div>
+      <button class="btn-alert" onclick="sendAlert()">Send Alert</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Event Log</h2>
+    <div id="events"><div class="empty">Waiting for events...</div></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const eventsEl = document.getElementById('events');
+    let firstEvent = true;
+
+    socket.on('connect', () => addLog('system', `Connected (id: ${socket.id})`));
+    socket.on('disconnect', (reason) => addLog('system', `Disconnected: ${reason}`));
+    socket.on('weather_update', d => addLog('update', `${d.cityName} ${d.temperature}°C — ${d.description}`));
+    socket.on('weather_alert', d => addLog('alert', `${d.cityName} [${d.type}] ${d.message}`));
+
+    function addLog(type, text) {
+      if (firstEvent) { eventsEl.innerHTML = ''; firstEvent = false; }
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      const time = new Date().toLocaleTimeString();
+      div.innerHTML = `<span class="log-time">${time}</span> <span class="log-${type}">${text}</span>`;
+      eventsEl.prepend(div);
+    }
+
+    async function refreshStatus() {
+      try {
+        const res = await fetch('/admin/status');
+        const data = await res.json();
+        document.getElementById('conn-count').textContent = data.connections;
+        const subs = Object.entries(data.subscriptions);
+        document.getElementById('sub-list').innerHTML = subs.length
+          ? subs.map(([city, n]) => `<strong>${city}</strong> (${n})`).join(', ')
+          : '<em>No subscriptions yet</em>';
+      } catch (e) { /* ignore */ }
+    }
+
+    async function sendUpdate() {
+      const btn = document.querySelector('.btn-update');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/admin/test-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cityName: document.getElementById('update-city').value,
+            temperature: parseFloat(document.getElementById('update-temp').value),
+            description: document.getElementById('update-desc').value,
+          }),
+        });
+        if (!res.ok) addLog('system', `POST failed: ${res.status}`);
+      } catch (e) {
+        addLog('system', `Error: ${e.message}`);
+      }
+      btn.textContent = 'Send Update';
+      btn.disabled = false;
+    }
+
+    async function sendAlert() {
+      const btn = document.querySelector('.btn-alert');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/admin/test-alert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cityName: document.getElementById('alert-city').value,
+            type: document.getElementById('alert-type').value,
+            message: document.getElementById('alert-msg').value,
+          }),
+        });
+        if (!res.ok) addLog('system', `POST failed: ${res.status}`);
+      } catch (e) {
+        addLog('system', `Error: ${e.message}`);
+      }
+      btn.textContent = 'Send Alert';
+      btn.disabled = false;
+    }
+
+    setInterval(refreshStatus, 3000);
+    refreshStatus();
+  </script>
+</body>
+</html>

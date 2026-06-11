@@ -1,7 +1,7 @@
 package com.weather.demo.di
 
 import com.weather.core.logging.LogPortFactory
-import com.weather.core.logging.TimberLogPortFactory
+import com.weather.core.data.logging.TimberLogPortFactory
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

@@ -11,6 +11,7 @@ import com.weather.core.domain.GetHourlyForecastUseCase
 import com.weather.core.domain.GetSelectedCityUseCase
 import com.weather.core.domain.RefreshWeatherUseCase
 import com.weather.core.model.Resource
+import com.weather.core.repository.WeatherRealtimeService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,7 +30,8 @@ class WeatherViewModel @Inject constructor(
     private val getHourlyForecast: GetHourlyForecastUseCase,
     private val refreshWeather: RefreshWeatherUseCase,
     private val getSelectedCity: GetSelectedCityUseCase,
-    private val featureToggle: FeatureTogglePort
+    private val featureToggle: FeatureTogglePort,
+    private val realtime: WeatherRealtimeService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WeatherUiState())
@@ -41,10 +44,25 @@ class WeatherViewModel @Inject constructor(
         get() = featureToggle.isEnabled(FeatureFlag.OFFLINE_BANNER_ENABLED)
 
     init {
+        if (featureToggle.isEnabled(FeatureFlag.SOCKET_IO_ENABLED)) {
+            viewModelScope.launch { realtime.connect() }
+        }
+
         viewModelScope.launch {
             getSelectedCity().filterNotNull().collectLatest { cityName ->
                 _uiState.update { it.copy(cityName = cityName, isLoading = true, error = null) }
+                if (featureToggle.isEnabled(FeatureFlag.SOCKET_IO_ENABLED)) {
+                    realtime.subscribeCities(listOf(cityName))
+                }
                 loadWeather(cityName)
+            }
+        }
+
+        if (featureToggle.isEnabled(FeatureFlag.WEATHER_ALERTS_ENABLED)) {
+            viewModelScope.launch {
+                realtime.observeWeatherAlerts().collect { alert ->
+                    _uiState.update { it.copy(alertMessage = alert.message) }
+                }
             }
         }
     }
@@ -96,5 +114,16 @@ class WeatherViewModel @Inject constructor(
 
     fun dismissError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun dismissAlert() {
+        _uiState.update { it.copy(alertMessage = null) }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        if (featureToggle.isEnabled(FeatureFlag.SOCKET_IO_ENABLED)) {
+            runBlocking { realtime.disconnect() }
+        }
     }
 }

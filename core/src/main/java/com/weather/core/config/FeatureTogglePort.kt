@@ -3,6 +3,6 @@ package com.weather.core.config
 import kotlinx.coroutines.flow.StateFlow
 
 interface FeatureTogglePort {
-    val flags: StateFlow<Map<String, Boolean>>
+    val configs: StateFlow<Map<String, Any>>
     suspend fun refresh()
 }

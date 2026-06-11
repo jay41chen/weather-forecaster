@@ -62,6 +62,13 @@ fun WeatherScreen(
         }
     }
 
+    LaunchedEffect(uiState.alertMessage) {
+        uiState.alertMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            viewModel.dismissAlert()
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {

@@ -16,5 +16,9 @@ build/
 # Generated
 **/generated/
 
+# Node
+node_modules/
+
 # Claude Code
 .claude/
+.env

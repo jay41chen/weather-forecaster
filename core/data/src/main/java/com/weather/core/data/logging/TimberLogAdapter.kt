@@ -1,5 +1,6 @@
-package com.weather.core.logging
+package com.weather.core.data.logging
 
+import com.weather.core.logging.LogPort
 import timber.log.Timber
 
 class TimberLogAdapter(private val tag: String) : LogPort {

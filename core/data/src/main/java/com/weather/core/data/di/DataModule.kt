@@ -1,10 +1,12 @@
 package com.weather.core.data.di
 
 import com.weather.core.data.network.RetrofitWeatherApiService
+import com.weather.core.data.realtime.SocketIORealtimeServiceImpl
 import com.weather.core.data.repository.CityRepositoryImpl
 import com.weather.core.data.repository.WeatherRepositoryImpl
 import com.weather.core.network.WeatherApiService
 import com.weather.core.repository.CityRepository
+import com.weather.core.repository.WeatherRealtimeService
 import com.weather.core.repository.WeatherRepository
 import dagger.Binds
 import dagger.Module
@@ -27,4 +29,8 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindCityRepo(impl: CityRepositoryImpl): CityRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRealtime(impl: SocketIORealtimeServiceImpl): WeatherRealtimeService
 }

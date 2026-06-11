@@ -1,7 +1,8 @@
 {
-  "socket_io_enabled": false,
+  "socket_io_enabled": true,
   "city_search_enabled": true,
   "hourly_forecast_enabled": true,
   "offline_banner_enabled": true,
-  "weather_alerts_enabled": false
+  "weather_alerts_enabled": true,
+  "socket_url": "http://10.0.2.2:3000"
 }

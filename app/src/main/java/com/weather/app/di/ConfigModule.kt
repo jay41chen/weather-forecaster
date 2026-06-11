@@ -1,7 +1,7 @@
 package com.weather.app.di
 
 import com.weather.core.config.FeatureTogglePort
-import com.weather.core.config.RemoteFeatureToggleAdapter
+import com.weather.core.data.config.RemoteFeatureToggleAdapter
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

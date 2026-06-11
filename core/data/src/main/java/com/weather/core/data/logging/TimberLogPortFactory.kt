@@ -1,5 +1,7 @@
-package com.weather.core.logging
+package com.weather.core.data.logging
 
+import com.weather.core.logging.LogPort
+import com.weather.core.logging.LogPortFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -13,5 +13,6 @@ data class WeatherUiState(
     val currentWeather: CurrentWeather? = null,
     val hourlyForecasts: List<HourlyForecast> = emptyList(),
     val dailyForecasts: List<DailyForecast> = emptyList(),
-    val error: ApiError? = null
+    val error: ApiError? = null,
+    val alertMessage: String? = null
 )

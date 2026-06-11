@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,8 +35,9 @@ class DemoViewModel @Inject constructor(
     private val _weatherResult = MutableStateFlow("—")
     val weatherResult: StateFlow<String> = _weatherResult.asStateFlow()
 
-    val featureFlags: StateFlow<Map<String, Boolean>> = featureToggle.flags
-        .stateIn(viewModelScope, SharingStarted.Eagerly, featureToggle.flags.value)
+    val featureFlags: StateFlow<Map<String, Boolean>> = featureToggle.configs
+        .map { map -> map.filterValues { it is Boolean }.mapValues { it.value as Boolean } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, featureToggle.configs.value.filterValues { it is Boolean }.mapValues { it.value as Boolean })
 
     fun toggleFlag(flag: FeatureFlag, enabled: Boolean) {
         featureToggle.setFlag(flag, enabled)

@@ -57,7 +57,13 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.android)
 
+    implementation(libs.timber)
+
     implementation(libs.play.services.location)
+
+    implementation("io.socket:socket.io-client:2.1.2") {
+        exclude(group = "org.json", module = "json")
+    }
 
     testImplementation(libs.junit4)
     testImplementation(libs.mockk)
