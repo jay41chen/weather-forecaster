@@ -11,5 +11,5 @@ interface CityRepository {
     suspend fun saveCity(city: City)
     suspend fun removeCity(city: City)
     suspend fun selectCity(cityName: String)
-    suspend fun initializeIfNeeded()
+    suspend fun count(): Int
 }

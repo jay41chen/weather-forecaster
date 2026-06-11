@@ -42,8 +42,8 @@ class CityRepositoryImpl @Inject constructor(
             log.i("Search success", mapOf("query" to query, "source" to "network", "count" to cities.size))
             Resource.Success(cities)
         } catch (e: Exception) {
-            log.e("Search failed", e, mapOf("query" to query))
-            Resource.Error(e.message ?: "Search failed", e)
+            log.e("Search failed", e, mapOf("query" to query, "error_type" to e.toApiError()::class.simpleName))
+            Resource.Error(e.message ?: "Search failed", e.toApiError(), e)
         }
     }
 
@@ -62,22 +62,5 @@ class CityRepositoryImpl @Inject constructor(
         dataStore.edit { prefs -> prefs[selectedCityKey] = cityName }
     }
 
-    override suspend fun initializeIfNeeded() {
-        if (cityDao.count() == 0) {
-            val defaultCities = listOf(
-                City("London", "GB", null, 51.5074, -0.1278),
-                City("New York", "US", "New York", 40.7128, -74.0060),
-                City("Tokyo", "JP", null, 35.6762, 139.6503),
-                City("Paris", "FR", null, 48.8566, 2.3522),
-                City("Sydney", "AU", "New South Wales", -33.8688, 151.2093),
-                City("Berlin", "DE", null, 52.5200, 13.4050),
-                City("Toronto", "CA", "Ontario", 43.6532, -79.3832),
-                City("Singapore", "SG", null, 1.3521, 103.8198),
-                City("Dubai", "AE", null, 25.2048, 55.2708),
-                City("São Paulo", "BR", "São Paulo", -23.5505, -46.6333)
-            )
-            defaultCities.forEach { cityDao.insertCity(it.toEntity()) }
-            dataStore.edit { prefs -> prefs[selectedCityKey] = "London" }
-        }
-    }
+    override suspend fun count(): Int = cityDao.count()
 }

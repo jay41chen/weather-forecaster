@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 class WeatherRepositoryImpl @Inject constructor(
@@ -30,7 +31,7 @@ class WeatherRepositoryImpl @Inject constructor(
     private val log = logFactory.create("WeatherRepo")
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mapMutex = Mutex()
-    private val inFlight = mutableMapOf<String, Deferred<Resource<Unit>>>()
+    private val inFlight = ConcurrentHashMap<String, Deferred<Resource<Unit>>>()
 
     override fun observeCurrentWeather(cityName: String): Flow<CurrentWeather?> {
         return weatherDao.observeCurrentWeather(cityName).map { it?.toDomain() }
@@ -57,7 +58,7 @@ class WeatherRepositoryImpl @Inject constructor(
                     try {
                         fetchAndSave(cityName)
                     } finally {
-                        mapMutex.withLock { inFlight.remove(cityName) }
+                        inFlight.keys.remove(cityName)
                     }
                 }
             }
@@ -91,8 +92,8 @@ class WeatherRepositoryImpl @Inject constructor(
             log.i("Sync success", mapOf("city" to cityName, "source" to "network"))
             Resource.Success(Unit)
         } catch (e: Exception) {
-            log.e("Sync failed", e, mapOf("city" to cityName))
-            Resource.Error(e.message ?: "Sync failed", e)
+            log.e("Sync failed", e, mapOf("city" to cityName, "error_type" to e.toApiError()::class.simpleName))
+            Resource.Error(e.message ?: "Sync failed", e.toApiError(), e)
         }
     }
 }

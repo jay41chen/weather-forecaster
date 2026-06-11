@@ -13,17 +13,25 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.weather.core.ui.component.ErrorContent
 import com.weather.core.ui.component.LoadingContent
+import com.weather.core.ui.component.isRetryable
+import com.weather.core.ui.component.snackbarDuration
+import com.weather.core.ui.component.userMessage
 import com.weather.feature.weather.component.CurrentWeatherCard
 import com.weather.feature.weather.component.DailyForecastItem
 import com.weather.feature.weather.component.HourlyForecastRow
@@ -36,8 +44,26 @@ fun WeatherScreen(
     viewModel: WeatherViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val error = uiState.error
+    val hasCache = uiState.currentWeather != null
+    LaunchedEffect(error, hasCache) {
+        if (error != null && hasCache) {
+            val result = snackbarHostState.showSnackbar(
+                message = error.userMessage(),
+                actionLabel = if (error.isRetryable()) "Retry" else null,
+                duration = error.snackbarDuration()
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.refresh()
+            }
+            viewModel.dismissError()
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -67,7 +93,7 @@ fun WeatherScreen(
             when {
                 uiState.isLoading && uiState.currentWeather == null -> LoadingContent()
                 uiState.error != null && uiState.currentWeather == null -> ErrorContent(
-                    message = uiState.error!!,
+                    error = uiState.error!!,
                     onRetry = viewModel::refresh
                 )
                 else -> {

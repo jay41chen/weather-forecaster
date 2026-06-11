@@ -57,7 +57,7 @@ class WeatherViewModel @Inject constructor(
                         it.copy(currentWeather = result.data, isLoading = false, error = null)
                     }
                     is Resource.Error -> _uiState.update {
-                        it.copy(error = result.message, isLoading = false)
+                        it.copy(error = result.apiError, isLoading = false)
                     }
                     Resource.Loading -> _uiState.update { it.copy(isLoading = true) }
                 }
@@ -84,8 +84,17 @@ class WeatherViewModel @Inject constructor(
         if (city.isBlank()) return
         viewModelScope.launch {
             _uiState.update { it.copy(isSyncing = true) }
-            refreshWeather(city)
-            _uiState.update { it.copy(isSyncing = false) }
+            val result = refreshWeather(city)
+            _uiState.update {
+                it.copy(
+                    isSyncing = false,
+                    error = if (result is Resource.Error) result.apiError else null
+                )
+            }
         }
+    }
+
+    fun dismissError() {
+        _uiState.update { it.copy(error = null) }
     }
 }

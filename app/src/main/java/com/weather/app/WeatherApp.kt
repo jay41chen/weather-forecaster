@@ -1,7 +1,7 @@
 package com.weather.app
 
 import android.app.Application
-import com.weather.core.repository.CityRepository
+import com.weather.core.domain.SeedDefaultCitiesUseCase
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +14,7 @@ import javax.inject.Inject
 class WeatherApp : Application() {
 
     @Inject
-    lateinit var cityRepository: CityRepository
+    lateinit var seedDefaultCities: SeedDefaultCitiesUseCase
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -24,7 +24,7 @@ class WeatherApp : Application() {
             Timber.plant(Timber.DebugTree())
         }
         appScope.launch {
-            cityRepository.initializeIfNeeded()
+            seedDefaultCities()
         }
     }
 }
