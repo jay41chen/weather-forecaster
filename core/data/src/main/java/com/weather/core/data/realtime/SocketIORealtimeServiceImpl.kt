@@ -36,6 +36,7 @@ class SocketIORealtimeServiceImpl @Inject constructor(
     private var socket: Socket? = null
     private val _updates = MutableSharedFlow<CurrentWeather>(extraBufferCapacity = 64)
     private val _alerts = MutableSharedFlow<WeatherAlert>(extraBufferCapacity = 64)
+    // Bridges Socket.IO callbacks (non-coroutine threads) into coroutines for DAO writes and flow emissions.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun observeWeatherUpdates(): Flow<CurrentWeather> = _updates.asSharedFlow()

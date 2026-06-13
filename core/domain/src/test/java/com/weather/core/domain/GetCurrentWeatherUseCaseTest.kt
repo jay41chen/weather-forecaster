@@ -19,6 +19,7 @@ import java.io.IOException
 class GetCurrentWeatherUseCaseTest {
 
     private val repo: WeatherRepository = mockk()
+    private val syncWeather: SyncWeatherUseCase = mockk()
     private lateinit var useCase: GetCurrentWeatherUseCase
 
     private val cityName = "Taipei"
@@ -51,7 +52,7 @@ class GetCurrentWeatherUseCaseTest {
 
     @Before
     fun setUp() {
-        useCase = GetCurrentWeatherUseCase(repo)
+        useCase = GetCurrentWeatherUseCase(repo, syncWeather)
     }
 
     /**
@@ -66,7 +67,7 @@ class GetCurrentWeatherUseCaseTest {
         val weatherFlow = MutableStateFlow<CurrentWeather?>(cachedWeather)
 
         every { repo.observeCurrentWeather(cityName) } returns weatherFlow
-        coEvery { repo.sync(cityName) } coAnswers {
+        coEvery { syncWeather(cityName) } coAnswers {
             weatherFlow.value = updatedWeather
             Resource.Success(Unit)
         }
@@ -95,7 +96,7 @@ class GetCurrentWeatherUseCaseTest {
         val weatherFlow = MutableStateFlow<CurrentWeather?>(cachedWeather)
 
         every { repo.observeCurrentWeather(cityName) } returns weatherFlow
-        coEvery { repo.sync(cityName) } returns Resource.Error("Network error", throwable = IOException("No internet"))
+        coEvery { syncWeather(cityName) } returns Resource.Error("Network error", throwable = IOException("No internet"))
 
         // take(1) because only one distinct emission: Success(cached).
         // The flow stays alive afterwards (no error is ever emitted).
@@ -120,7 +121,7 @@ class GetCurrentWeatherUseCaseTest {
         val weatherFlow = MutableStateFlow<CurrentWeather?>(null)
 
         every { repo.observeCurrentWeather(cityName) } returns weatherFlow
-        coEvery { repo.sync(cityName) } returns Resource.Error("Sync failed", throwable = IOException("No internet"))
+        coEvery { syncWeather(cityName) } returns Resource.Error("Sync failed", throwable = IOException("No internet"))
 
         val emissions = useCase(cityName).take(2).toList()
 
@@ -145,7 +146,7 @@ class GetCurrentWeatherUseCaseTest {
         val weatherFlow = MutableStateFlow<CurrentWeather?>(null)
 
         every { repo.observeCurrentWeather(cityName) } returns weatherFlow
-        coEvery { repo.sync(cityName) } coAnswers {
+        coEvery { syncWeather(cityName) } coAnswers {
             weatherFlow.value = updatedWeather
             Resource.Success(Unit)
         }

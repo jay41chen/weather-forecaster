@@ -16,6 +16,7 @@ class WeatherApp : Application() {
     @Inject
     lateinit var seedDefaultCities: SeedDefaultCitiesUseCase
 
+    // Runs before any Activity/ViewModel exists; no presentation-layer scope available yet.
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {

@@ -11,6 +11,5 @@ interface WeatherRepository {
     fun observeDailyForecasts(cityName: String): Flow<List<DailyForecast>>
     fun observeHourlyForecasts(cityName: String): Flow<List<HourlyForecast>>
     suspend fun sync(cityName: String): Resource<Unit>
-    suspend fun forceSync(cityName: String): Resource<Unit>
     suspend fun getCurrentWeatherByCoords(lat: Double, lon: Double): CurrentWeather?
 }

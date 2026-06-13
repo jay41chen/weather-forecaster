@@ -12,14 +12,15 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GetCurrentWeatherUseCase @Inject constructor(
-    private val repo: WeatherRepository
+    private val repo: WeatherRepository,
+    private val syncWeather: SyncWeatherUseCase
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(cityName: String): Flow<Resource<CurrentWeather>> = flow {
         val cached = repo.observeCurrentWeather(cityName).first()
         if (cached != null) emit(Resource.Success(cached)) else emit(Resource.Loading)
 
-        val syncResult = repo.sync(cityName)
+        val syncResult = syncWeather(cityName)
         if (syncResult is Resource.Error && cached == null) {
             emit(syncResult)
         }

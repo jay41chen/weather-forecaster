@@ -72,7 +72,7 @@ class DemoViewModel @Inject constructor(
         if (cityName.isBlank()) return
         viewModelScope.launch {
             _weatherResult.value = "…"
-            _weatherResult.value = when (val r = weatherRepository.forceSync(cityName)) {
+            _weatherResult.value = when (val r = weatherRepository.sync(cityName)) {
                 is Resource.Success -> "OK"
                 is Resource.Error -> "Error: ${r.message}"
                 Resource.Loading -> "…"

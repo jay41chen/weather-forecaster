@@ -7,5 +7,5 @@ import javax.inject.Inject
 class RefreshWeatherUseCase @Inject constructor(
     private val repo: WeatherRepository
 ) {
-    suspend operator fun invoke(cityName: String): Resource<Unit> = repo.forceSync(cityName)
+    suspend operator fun invoke(cityName: String): Resource<Unit> = repo.sync(cityName)
 }

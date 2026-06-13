@@ -3,6 +3,7 @@ package com.weather.core.data.di
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.weather.core.data.BuildConfig
 import com.weather.core.data.logging.LogPortHttpLogger
+import com.weather.core.data.logging.RedactingLogPort
 import com.weather.core.data.network.RetrofitClient
 import com.weather.core.data.network.RetryInterceptor
 import com.weather.core.logging.LogPortFactory
@@ -47,7 +48,11 @@ object NetworkModule {
         apiKeyInterceptor: Interceptor,
         logFactory: LogPortFactory
     ): OkHttpClient {
-        val httpLogger = LogPortHttpLogger(logFactory.create("OkHttp"))
+        val redactedLog = RedactingLogPort(
+            logFactory.create("OkHttp"),
+            listOf(Regex("[a-fA-F0-9]{32,}") to "***REDACTED***")
+        )
+        val httpLogger = LogPortHttpLogger(redactedLog)
         return OkHttpClient.Builder()
             .addInterceptor(apiKeyInterceptor)
             .addInterceptor(RetryInterceptor())
