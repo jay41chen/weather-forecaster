@@ -21,7 +21,7 @@ android {
         buildConfigField(
             "String",
             "OPEN_WEATHER_API_KEY",
-            "\"${localProps["OPEN_WEATHER_API_KEY"] ?: ""}\""
+            "\"${System.getenv("OPEN_WEATHER_API_KEY") ?: localProps["OPEN_WEATHER_API_KEY"] ?: ""}\""
         )
     }
 
