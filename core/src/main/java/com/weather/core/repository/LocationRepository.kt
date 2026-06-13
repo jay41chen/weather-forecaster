@@ -1,7 +1,7 @@
 package com.weather.core.repository
 
-import android.location.Location
+import com.weather.core.model.Coordinates
 
 interface LocationRepository {
-    suspend fun getCurrentLocation(): Location?
+    suspend fun getCurrentLocation(): Coordinates?
 }

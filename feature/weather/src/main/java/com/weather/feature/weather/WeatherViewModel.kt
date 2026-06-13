@@ -10,6 +10,7 @@ import com.weather.core.domain.GetDailyForecastUseCase
 import com.weather.core.domain.GetHourlyForecastUseCase
 import com.weather.core.domain.GetSelectedCityUseCase
 import com.weather.core.domain.RefreshWeatherUseCase
+import com.weather.core.di.ApplicationScope
 import com.weather.core.model.Resource
 import com.weather.core.repository.WeatherRealtimeService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,8 +20,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +33,8 @@ class WeatherViewModel @Inject constructor(
     private val refreshWeather: RefreshWeatherUseCase,
     private val getSelectedCity: GetSelectedCityUseCase,
     private val featureToggle: FeatureTogglePort,
-    private val realtime: WeatherRealtimeService
+    private val realtime: WeatherRealtimeService,
+    @ApplicationScope private val appScope: CoroutineScope
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WeatherUiState())
@@ -67,8 +70,8 @@ class WeatherViewModel @Inject constructor(
         }
     }
 
-    private fun loadWeather(cityName: String) {
-        viewModelScope.launch {
+    private suspend fun loadWeather(cityName: String) = supervisorScope {
+        launch {
             getCurrentWeather(cityName).collect { result ->
                 when (result) {
                     is Resource.Success -> _uiState.update {
@@ -81,14 +84,14 @@ class WeatherViewModel @Inject constructor(
                 }
             }
         }
-        viewModelScope.launch {
+        launch {
             getDailyForecast(cityName).collect { result ->
                 if (result is Resource.Success) {
                     _uiState.update { it.copy(dailyForecasts = result.data) }
                 }
             }
         }
-        viewModelScope.launch {
+        launch {
             getHourlyForecast(cityName).collect { result ->
                 if (result is Resource.Success) {
                     _uiState.update { it.copy(hourlyForecasts = result.data) }
@@ -123,7 +126,7 @@ class WeatherViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         if (featureToggle.isEnabled(FeatureFlag.SOCKET_IO_ENABLED)) {
-            runBlocking { realtime.disconnect() }
+            appScope.launch { realtime.disconnect() }
         }
     }
 }

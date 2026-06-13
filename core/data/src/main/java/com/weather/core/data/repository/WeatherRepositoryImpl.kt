@@ -58,7 +58,7 @@ class WeatherRepositoryImpl @Inject constructor(
                     try {
                         fetchAndSave(cityName)
                     } finally {
-                        inFlight.keys.remove(cityName)
+                        mapMutex.withLock { inFlight.remove(cityName) }
                     }
                 }
             }

@@ -46,9 +46,9 @@ class DemoViewModel @Inject constructor(
     fun testLocation() {
         viewModelScope.launch {
             _locationResult.value = "…"
-            val loc = locationRepository.getCurrentLocation()
-            _locationResult.value = if (loc != null)
-                "lat=${loc.latitude}, lon=${loc.longitude}"
+            val coordinates = locationRepository.getCurrentLocation()
+            _locationResult.value = if (coordinates != null)
+                "lat=${coordinates.latitude}, lon=${coordinates.longitude}"
             else
                 "null — no GPS fix or permission denied"
         }

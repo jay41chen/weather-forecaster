@@ -3,6 +3,7 @@ package com.weather.core.data.repository
 import android.content.Context
 import android.location.Location
 import com.google.android.gms.common.ConnectionResult
+import com.weather.core.model.Coordinates
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.tasks.OnSuccessListener
@@ -47,14 +48,14 @@ class LocationRepositoryImplTest {
     }
 
     @Test
-    fun `returns location when lastLocation has a fix`() = runTest {
+    fun `returns coordinates when lastLocation has a fix`() = runTest {
         val location = mockk<Location> {
             every { latitude } returns 25.04
             every { longitude } returns 121.56
         }
         mockLastLocation(location)
 
-        assertEquals(location, repository.getCurrentLocation())
+        assertEquals(Coordinates(25.04, 121.56), repository.getCurrentLocation())
     }
 
     @Test
@@ -66,7 +67,7 @@ class LocationRepositoryImplTest {
         mockLastLocation(null)
         mockGetCurrentLocation(location)
 
-        assertEquals(location, repository.getCurrentLocation())
+        assertEquals(Coordinates(25.04, 121.56), repository.getCurrentLocation())
     }
 
     @Test

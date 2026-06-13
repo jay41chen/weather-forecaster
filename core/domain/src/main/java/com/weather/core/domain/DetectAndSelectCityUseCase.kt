@@ -11,10 +11,10 @@ class DetectAndSelectCityUseCase @Inject constructor(
     private val cityRepository: CityRepository
 ) {
     suspend operator fun invoke() {
-        val location = locationRepository.getCurrentLocation() ?: return
+        val coordinates = locationRepository.getCurrentLocation() ?: return
         val weather = weatherRepository.getCurrentWeatherByCoords(
-            location.latitude,
-            location.longitude
+            coordinates.latitude,
+            coordinates.longitude
         ) ?: return
         cityRepository.selectCity(weather.cityName)
     }

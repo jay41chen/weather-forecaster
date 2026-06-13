@@ -11,6 +11,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.weather.core.model.Coordinates
 import com.weather.core.repository.LocationRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.TimeoutCancellationException
@@ -24,8 +25,8 @@ class LocationRepositoryImpl @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient
 ) : LocationRepository {
 
-    override suspend fun getCurrentLocation(): Location? = try {
-        withTimeout(5_000L) { getLastLocation() }
+    override suspend fun getCurrentLocation(): Coordinates? = try {
+        withTimeout(5_000L) { getLastLocation() }?.let { Coordinates(it.latitude, it.longitude) }
     } catch (e: TimeoutCancellationException) {
         null
     }
