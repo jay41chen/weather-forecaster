@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.weather.core.config.FeatureFlag
 import com.weather.core.config.FeatureTogglePort
 import com.weather.core.config.isEnabled
+import com.weather.core.config.observeFlag
 import com.weather.core.domain.GetCurrentWeatherUseCase
+
 import com.weather.core.domain.GetDailyForecastUseCase
 import com.weather.core.domain.GetHourlyForecastUseCase
 import com.weather.core.domain.GetSelectedCityUseCase
@@ -37,13 +39,18 @@ class WeatherViewModel @Inject constructor(
     @ApplicationScope private val appScope: CoroutineScope
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(WeatherUiState())
+    private val _uiState = MutableStateFlow(WeatherUiState(
+        showHourlyForecast = featureToggle.isEnabled(FeatureFlag.HOURLY_FORECAST_ENABLED)
+    ))
     val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
 
-    val showHourlyForecast: Boolean
-        get() = featureToggle.isEnabled(FeatureFlag.HOURLY_FORECAST_ENABLED)
-
     init {
+        viewModelScope.launch {
+            featureToggle.observeFlag(FeatureFlag.HOURLY_FORECAST_ENABLED).collect { enabled ->
+                _uiState.update { it.copy(showHourlyForecast = enabled) }
+            }
+        }
+
         viewModelScope.launch {
             if (featureToggle.isEnabled(FeatureFlag.SOCKET_IO_ENABLED)) {
                 realtime.connect()

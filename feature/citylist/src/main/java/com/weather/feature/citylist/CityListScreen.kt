@@ -67,7 +67,7 @@ fun CityListScreen(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
-            if (viewModel.showSearch) {
+            if (uiState.showSearch) {
                 OutlinedTextField(
                     value = uiState.searchQuery,
                     onValueChange = viewModel::onSearchQueryChange,
@@ -86,7 +86,7 @@ fun CityListScreen(
                 )
             }
 
-            if (viewModel.showSearch && uiState.searchQuery.isNotEmpty()) {
+            if (uiState.showSearch && uiState.searchQuery.isNotEmpty()) {
                 LazyColumn {
                     items(uiState.searchResults, key = { "${it.name},${it.country}" }) { city ->
                         SearchResultItem(

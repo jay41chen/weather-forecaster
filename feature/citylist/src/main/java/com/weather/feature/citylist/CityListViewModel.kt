@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.weather.core.config.FeatureFlag
 import com.weather.core.config.FeatureTogglePort
-import com.weather.core.config.isEnabled
+import com.weather.core.config.observeFlag
 import com.weather.core.domain.GetSavedCitiesUseCase
 import com.weather.core.domain.GetSelectedCityUseCase
 import com.weather.core.domain.RemoveCityUseCase
@@ -47,12 +47,15 @@ class CityListViewModel @Inject constructor(
     private val _events = Channel<CityListEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
-    val showSearch: Boolean
-        get() = featureToggle.isEnabled(FeatureFlag.CITY_SEARCH_ENABLED)
-
     private val _searchQuery = MutableStateFlow("")
 
     init {
+        viewModelScope.launch {
+            featureToggle.observeFlag(FeatureFlag.CITY_SEARCH_ENABLED).collect { enabled ->
+                _uiState.update { it.copy(showSearch = enabled) }
+            }
+        }
+
         viewModelScope.launch {
             getSavedCities().collect { cities ->
                 _uiState.update { it.copy(savedCities = cities) }

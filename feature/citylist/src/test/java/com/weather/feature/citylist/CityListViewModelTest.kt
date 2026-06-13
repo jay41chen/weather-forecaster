@@ -165,9 +165,11 @@ class CityListViewModelTest {
     fun `showSearch reflects feature flag`() = runTest(testDispatcher) {
         featureToggle.setFlag(FeatureFlag.CITY_SEARCH_ENABLED, false)
         val vm = createViewModel()
-        assertFalse(vm.showSearch)
+        advanceUntilIdle()
+        assertFalse(vm.uiState.value.showSearch)
 
         featureToggle.setFlag(FeatureFlag.CITY_SEARCH_ENABLED, true)
-        assertTrue(vm.showSearch)
+        advanceUntilIdle()
+        assertTrue(vm.uiState.value.showSearch)
     }
 }

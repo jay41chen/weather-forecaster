@@ -120,7 +120,7 @@ fun WeatherScreen(
                         ) {
                             item { CurrentWeatherCard(weather = weather, modifier = Modifier.padding(top = 8.dp)) }
                             item { WeatherDetailsRow(weather = weather) }
-                            if (viewModel.showHourlyForecast) {
+                            if (uiState.showHourlyForecast) {
                                 item {
                                     Text(
                                         text = "Today",

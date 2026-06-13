@@ -72,19 +72,77 @@ npm install && npm start
 - **Location**: Fused Location Provider
 - **Testing**: JUnit 4 + MockK + kotlinx-coroutines-test
 
-## Project Structure
+## Architecture
+
+### Module Dependency Graph
 
 ```
-app/                        # Application entry point, Hilt setup, navigation
+┌─────────────────────────────────────────────────────┐
+│                        app                          │
+│              (Composition Root / DI)                │
+└──────┬──────────┬──────────┬──────────┬─────────────┘
+       │          │          │          │
+       ▼          ▼          ▼          ▼
+  ┌─────────┐ ┌─────────┐ ┌────────┐ ┌────────┐
+  │feature: │ │feature: │ │ core:  │ │ core:  │
+  │weather  │ │citylist │ │  data  │ │   ui   │
+  │(Screen +│ │(Screen +│ │(Adapters│ │(Shared │
+  │   VM)   │ │   VM)   │ │  DB,   │ │Compose)│
+  └────┬────┘ └────┬────┘ │  API)  │ └───┬────┘
+       │          │       └───┬────┘     │
+       │          │           │          │
+       ▼          ▼           ▼          ▼
+  ┌──────────────────────────────────────────┐
+  │              core:domain                 │
+  │           (Use Cases only)               │
+  └──────────────────┬───────────────────────┘
+                     │
+                     ▼
+  ┌──────────────────────────────────────────┐
+  │                 core                     │
+  │    (Port interfaces + Domain models)     │
+  └──────────────────────────────────────────┘
+```
+
+All arrows point inward — outer layers depend on inner layers, never the reverse. Feature modules never import `core:data`; they depend only on interfaces from `core` and use cases from `core:domain`. Concrete implementations are wired via Hilt in the `app` module (composition root).
+
+### Data Flow (UDF)
+
+```
+  ┌──────────────────────────────────────────────────────┐
+  │                     Screen                           │
+  │  collectAsState(uiState) ◄──── StateFlow<UiState>    │
+  │                                       ▲              │
+  │  onClick / onRefresh ─────► ViewModel │              │
+  │                              │  _uiState.update()    │
+  │                              ▼                       │
+  │                           UseCase                    │
+  │                              │                       │
+  │                              ▼                       │
+  │                     Repository (Port)                │
+  │                      ┌───────┴───────┐               │
+  │                      ▼               ▼               │
+  │                 Remote API      Local DB (Room)       │
+  └──────────────────────────────────────────────────────┘
+```
+
+- **State** flows down: `Repository → UseCase → ViewModel → Screen` via `StateFlow`
+- **Events** flow up: `Screen → ViewModel` via function calls
+- **Offline-first**: Use cases observe Room via `Flow`, trigger sync in parallel. Cached data renders immediately; fresh data replaces it when the API responds.
+
+### Project Structure
+
+```
+app/                        # Composition root: Hilt modules, navigation, Application
 core/                       # Port interfaces, domain models, logging
-  core:data/                # Adapter implementations (API, DB, config)
-  core:domain/              # Use cases (business rules)
-  core:ui/                  # Shared Compose components
+  core:data/                # Adapter implementations (Retrofit, Room, Socket.IO)
+  core:domain/              # Use cases (business rules: TTL, dedup, sync)
+  core:ui/                  # Shared Compose components (ErrorContent, LoadingContent)
 feature/
-  feature:weather/          # Weather detail screen (feature module)
-  feature:citylist/         # City list / selection screen (feature module)
+  feature:weather/          # Weather detail screen + ViewModel (feature module)
+  feature:citylist/         # City list / selection screen + ViewModel (feature module)
 demo/                       # Standalone demo app for feature toggle testing
-server/                     # Socket.IO push server (Node.js)
+server/                     # Socket.IO push server (Node.js + Docker)
 ```
 
 ## Testing

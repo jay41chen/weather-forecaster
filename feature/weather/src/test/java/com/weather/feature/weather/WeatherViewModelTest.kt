@@ -268,9 +268,11 @@ class WeatherViewModelTest {
         val vm = createViewModel()
 
         featureToggle.setFlag(FeatureFlag.HOURLY_FORECAST_ENABLED, false)
-        assertFalse(vm.showHourlyForecast)
+        advanceUntilIdle()
+        assertFalse(vm.uiState.value.showHourlyForecast)
 
         featureToggle.setFlag(FeatureFlag.HOURLY_FORECAST_ENABLED, true)
-        assertTrue(vm.showHourlyForecast)
+        advanceUntilIdle()
+        assertTrue(vm.uiState.value.showHourlyForecast)
     }
 }

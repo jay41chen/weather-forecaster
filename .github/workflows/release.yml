@@ -20,6 +20,8 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # TODO: switch to assembleRelease + app/build/outputs/apk/release/app-release.apk
+      #       once signing config (keystore + GitHub Secrets) is set up
       - name: Build debug APK
         run: ./gradlew assembleDebug
         env:
