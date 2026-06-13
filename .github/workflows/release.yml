@@ -27,7 +27,7 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
       - name: Build release APK and AAB
-        run: ./gradlew assembleRelease bundleRelease
+        run: ./gradlew :app:assembleRelease :app:bundleRelease
         env:
           OPEN_WEATHER_API_KEY: ${{ secrets.OPEN_WEATHER_API_KEY }}
           KEYSTORE_PATH: ${{ secrets.KEYSTORE_BASE64 != '' && format('{0}/release.keystore', github.workspace) || '' }}
