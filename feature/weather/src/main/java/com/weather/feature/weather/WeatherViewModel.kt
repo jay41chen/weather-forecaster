@@ -43,9 +43,6 @@ class WeatherViewModel @Inject constructor(
     val showHourlyForecast: Boolean
         get() = featureToggle.isEnabled(FeatureFlag.HOURLY_FORECAST_ENABLED)
 
-    val showOfflineBanner: Boolean
-        get() = featureToggle.isEnabled(FeatureFlag.OFFLINE_BANNER_ENABLED)
-
     init {
         viewModelScope.launch {
             if (featureToggle.isEnabled(FeatureFlag.SOCKET_IO_ENABLED)) {
