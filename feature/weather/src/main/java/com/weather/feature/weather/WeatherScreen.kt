@@ -50,22 +50,28 @@ fun WeatherScreen(
     val hasCache = uiState.currentWeather != null
     LaunchedEffect(error, hasCache) {
         if (error != null && hasCache) {
-            val result = snackbarHostState.showSnackbar(
-                message = error.userMessage(),
-                actionLabel = if (error.isRetryable()) "Retry" else null,
-                duration = error.snackbarDuration()
-            )
-            if (result == SnackbarResult.ActionPerformed) {
-                viewModel.refresh()
+            try {
+                val result = snackbarHostState.showSnackbar(
+                    message = error.userMessage(),
+                    actionLabel = if (error.isRetryable()) "Retry" else null,
+                    duration = error.snackbarDuration()
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    viewModel.refresh()
+                }
+            } finally {
+                viewModel.dismissError()
             }
-            viewModel.dismissError()
         }
     }
 
     LaunchedEffect(uiState.alertMessage) {
         uiState.alertMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            viewModel.dismissAlert()
+            try {
+                snackbarHostState.showSnackbar(message)
+            } finally {
+                viewModel.dismissAlert()
+            }
         }
     }
 

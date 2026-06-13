@@ -34,7 +34,7 @@ interface WeatherDao {
     @Query("DELETE FROM daily_forecasts WHERE cityName = :cityName")
     suspend fun deleteDailyForecasts(cityName: String)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDailyForecasts(forecasts: List<DailyForecastEntity>)
 
     @Query("SELECT * FROM hourly_forecasts WHERE cityName = :cityName ORDER BY timestamp ASC")
@@ -49,6 +49,6 @@ interface WeatherDao {
     @Query("DELETE FROM hourly_forecasts WHERE cityName = :cityName")
     suspend fun deleteHourlyForecasts(cityName: String)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHourlyForecasts(forecasts: List<HourlyForecastEntity>)
 }

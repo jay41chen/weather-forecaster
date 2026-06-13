@@ -10,4 +10,5 @@ interface WeatherRealtimeService {
     suspend fun connect()
     suspend fun disconnect()
     suspend fun subscribeCities(cityNames: List<String>)
+    suspend fun unsubscribeCities(cityNames: List<String>)
 }

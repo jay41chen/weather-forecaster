@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -39,6 +40,14 @@ fun CityListScreen(
     viewModel: CityListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                CityListEvent.NavigateBack -> onNavigateBack()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -92,7 +101,7 @@ fun CityListScreen(
                         SavedCityItem(
                             city = city,
                             isSelected = city.name == uiState.selectedCityName,
-                            onSelect = { viewModel.onCitySelect(city, onNavigateBack) },
+                            onSelect = { viewModel.onCitySelect(city) },
                             onRemove = { viewModel.onCityRemove(city) }
                         )
                     }

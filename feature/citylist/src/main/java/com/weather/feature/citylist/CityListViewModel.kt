@@ -16,6 +16,7 @@ import com.weather.core.model.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,6 +43,9 @@ class CityListViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(CityListUiState())
     val uiState: StateFlow<CityListUiState> = _uiState.asStateFlow()
+
+    private val _events = Channel<CityListEvent>(Channel.BUFFERED)
+    val events = _events.receiveAsFlow()
 
     val showSearch: Boolean
         get() = featureToggle.isEnabled(FeatureFlag.CITY_SEARCH_ENABLED)
@@ -83,10 +88,10 @@ class CityListViewModel @Inject constructor(
         _uiState.update { it.copy(searchQuery = query, isSearching = query.isNotBlank()) }
     }
 
-    fun onCitySelect(city: City, onNavigateBack: () -> Unit) {
+    fun onCitySelect(city: City) {
         viewModelScope.launch {
             selectCity(city.name)
-            onNavigateBack()
+            _events.send(CityListEvent.NavigateBack)
         }
     }
 

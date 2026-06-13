@@ -47,15 +47,18 @@ class WeatherViewModel @Inject constructor(
         get() = featureToggle.isEnabled(FeatureFlag.OFFLINE_BANNER_ENABLED)
 
     init {
-        if (featureToggle.isEnabled(FeatureFlag.SOCKET_IO_ENABLED)) {
-            viewModelScope.launch { realtime.connect() }
-        }
-
         viewModelScope.launch {
+            if (featureToggle.isEnabled(FeatureFlag.SOCKET_IO_ENABLED)) {
+                realtime.connect()
+            }
+
+            var previousCity: String? = null
             getSelectedCity().filterNotNull().collectLatest { cityName ->
                 _uiState.update { it.copy(cityName = cityName, isLoading = true, error = null) }
                 if (featureToggle.isEnabled(FeatureFlag.SOCKET_IO_ENABLED)) {
+                    previousCity?.let { realtime.unsubscribeCities(listOf(it)) }
                     realtime.subscribeCities(listOf(cityName))
+                    previousCity = cityName
                 }
                 loadWeather(cityName)
             }

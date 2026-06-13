@@ -12,7 +12,7 @@ fun CityEntity.toDomain(): City = City(
 )
 
 fun City.toEntity(): CityEntity = CityEntity(
-    id = "$name,$country",
+    id = "$name,$country,${state.orEmpty()}",
     name = name,
     country = country,
     state = state,
