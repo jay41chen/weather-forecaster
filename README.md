@@ -1,63 +1,78 @@
 # Weather Forecaster
 
+**English** | [繁體中文](README.zh-TW.md)
+
 Android weather app built with Clean Architecture, Jetpack Compose, and the OpenWeatherMap API. Includes a Socket.IO push server for real-time weather updates and alerts.
 
-## Prerequisites
+## Getting Started
 
-- Android Studio Hedgehog (2023.1.1) or later
-- JDK 17
-- Android SDK 34 (compile) / min SDK 26
-- Docker (optional, for the push server)
+### Prerequisites
 
-## Setup
+1. **Android Studio** — download from [developer.android.com/studio](https://developer.android.com/studio) (Hedgehog 2023.1.1 or later). It bundles JDK 17 and the Android SDK, so no separate install is needed.
+2. **OpenWeatherMap API key** — sign up for free at [openweathermap.org/api](https://openweathermap.org/api) and copy your key from the dashboard.
+3. **Docker** (optional) — only needed if you want to run the real-time push server.
 
-### 1. API Key
-
-This app requires an [OpenWeatherMap](https://openweathermap.org/api) API key.
-
-Add the following to `local.properties` in the project root (create it if it doesn't exist):
-
-```properties
-OPEN_WEATHER_API_KEY=<your_api_key>
-```
-
-The same key is needed for the push server — see step 3.
-
-### 2. Build & Run the App
+### Step 1 — Clone the project
 
 ```bash
-# Clone
 git clone https://github.com/jay41chen/weather-forecaster.git
-cd weather-forecaster
-
-# Add your API key to local.properties (see step 1)
-
-# Build (command line)
-./gradlew assembleDebug
-
-# Or open in Android Studio → Run on emulator / device
 ```
 
-### 3. Push Server (optional)
+### Step 2 — Add your API key
 
-The Socket.IO push server provides real-time weather updates and weather alerts. The app works without it (feature toggle `socket_io_enabled` can be set to `false`), but for the full experience:
+Open the project folder and create a file named `local.properties` in the root (next to `build.gradle.kts`). Add this line, replacing the placeholder with your actual key:
+
+```properties
+OPEN_WEATHER_API_KEY=your_key_here
+```
+
+> `local.properties` is a standard Android config file that stays on your machine — it is git-ignored and will not be committed.
+
+### Step 3 — Build & run
+
+1. Open Android Studio → **File → Open** → select the project folder.
+2. Wait for Gradle sync to finish (progress bar at the bottom).
+3. Select a device or emulator from the toolbar, then click **Run ▶**.
+
+The app should launch and show a weather screen for the default city.
+
+<details>
+<summary>Command-line alternative</summary>
+
+```bash
+cd weather-forecaster
+./gradlew assembleDebug
+# The APK is at app/build/outputs/apk/debug/app-debug.apk
+```
+</details>
+
+### Step 4 — Push server (optional)
+
+The Socket.IO server provides real-time weather push and alerts. The app works without it — skip this step if you just want to try the app.
 
 ```bash
 cd server
 cp .env.example .env
-# Edit .env and add your OpenWeatherMap API key
+# Open .env in a text editor and paste your OpenWeatherMap API key
 
-# Option A: Docker
+# Start with Docker:
 docker compose up
 
-# Option B: Node.js
+# Or with Node.js (v18+):
 npm install && npm start
 ```
 
-**Client connection:**
-- Emulator: `http://10.0.2.2:3000` (default)
-- Physical device (same WiFi): replace with your machine's LAN IP
-- Physical device (USB): `adb reverse tcp:3000 tcp:3000`, then `http://localhost:3000`
+The server runs on port 3000. The app connects automatically when running on an Android emulator. For a physical device on the same WiFi, replace the server URL with your computer's local IP address.
+
+<details>
+<summary>Changing the server port</summary>
+
+If port 3000 is already in use, you can change it in two places:
+
+1. **Server** — set `PORT` in `server/.env` (e.g. `PORT=4000`), or pass it at startup: `PORT=4000 npm start`
+2. **App** — update `socket_url` in `core/src/main/assets/feature_defaults.json` to match (e.g. `http://10.0.2.2:4000`). For a physical device, use your computer's local IP instead of `10.0.2.2`.
+
+</details>
 
 ## Tech Stack
 
@@ -147,28 +162,21 @@ server/                     # Socket.IO push server (Node.js + Docker)
 
 ## CI/CD
 
-Two GitHub Actions workflows:
-
 | Workflow | Trigger | What it does |
 |---|---|---|
-| **PR Check** (`check.yml`) | Pull request → `main` / `develop` | Run unit tests, build debug APK, upload as Actions artifact |
-| **Release** (`release.yml`) | Push tag `v*` | Build signed release APK + AAB (R8 minified), upload APK / AAB / `mapping.txt` to GitHub Release |
+| **PR Check** (`check.yml`) | Pull request → `main` / `develop` | Run unit tests, build debug APK |
+| **Release** (`release.yml`) | Push tag `v*` | Build signed release APK + AAB (R8 minified), publish to GitHub Release |
 
-**Download artifacts:**
-- **Tagged release** — go to [Releases](../../releases), download `app-release.apk`, `app-release.aab`, or `mapping.txt`
-- **PR build** — go to the PR's check run in [Actions](../../actions), download `debug-apk` from the Artifacts section
+**Downloading builds:**
+- **Release build** — go to [Releases](../../releases) and download `app-release.apk` (direct install) or `app-release.aab` (for Play Store upload).
+- **PR / release build** — go to [Actions](../../actions), click the workflow run, and download artifacts from the **Artifacts** section at the bottom of the page.
 
-**Release signing** is configured via GitHub Secrets (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). Without secrets, the release build falls back to the debug signing key.
+Release signing is configured via repository secrets. Without secrets, the build falls back to a debug signing key.
 
 ## Testing
 
 ```bash
-# Run all unit tests
 ./gradlew test
-
-# Run tests for a specific module
-./gradlew :core:domain:test
-./gradlew :feature:weather:test
 ```
 
 12 test files covering ViewModels, use cases, and repositories.
