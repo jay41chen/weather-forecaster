@@ -23,7 +23,7 @@ class RetryInterceptor : Interceptor {
                     }
                     response.code in 500..599 && attempt < MAX_RETRIES -> {
                         response.close()
-                        sleepWithInterrupt(BACKOFF_DELAYS[attempt])
+                        sleepWithInterrupt(BACKOFF_DELAYS.getOrElse(attempt) { BACKOFF_DELAYS.last() })
                         attempt++
                     }
                     else -> return response
@@ -31,7 +31,7 @@ class RetryInterceptor : Interceptor {
             } catch (e: IOException) {
                 if (e is RateLimitException) throw e
                 lastException = e
-                if (attempt < MAX_RETRIES) sleepWithInterrupt(BACKOFF_DELAYS[attempt])
+                if (attempt < MAX_RETRIES) sleepWithInterrupt(BACKOFF_DELAYS.getOrElse(attempt) { BACKOFF_DELAYS.last() })
                 attempt++
             }
         }
