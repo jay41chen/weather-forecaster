@@ -145,6 +145,21 @@ demo/                       # Standalone demo app for feature toggle testing
 server/                     # Socket.IO push server (Node.js + Docker)
 ```
 
+## CI/CD
+
+Two GitHub Actions workflows:
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| **PR Check** (`check.yml`) | Pull request → `main` / `develop` | Run unit tests, build debug APK, upload as Actions artifact |
+| **Release** (`release.yml`) | Push tag `v*` | Build signed release APK + AAB (R8 minified), upload APK / AAB / `mapping.txt` to GitHub Release |
+
+**Download artifacts:**
+- **Tagged release** — go to [Releases](../../releases), download `app-release.apk`, `app-release.aab`, or `mapping.txt`
+- **PR build** — go to the PR's check run in [Actions](../../actions), download `debug-apk` from the Artifacts section
+
+**Release signing** is configured via GitHub Secrets (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). Without secrets, the release build falls back to the debug signing key.
+
 ## Testing
 
 ```bash
