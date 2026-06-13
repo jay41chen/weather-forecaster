@@ -88,7 +88,7 @@ fun CityListScreen(
 
             if (viewModel.showSearch && uiState.searchQuery.isNotEmpty()) {
                 LazyColumn {
-                    items(uiState.searchResults) { city ->
+                    items(uiState.searchResults, key = { "${it.name},${it.country}" }) { city ->
                         SearchResultItem(
                             city = city,
                             onAdd = { viewModel.onCityAdd(city) }
@@ -97,7 +97,7 @@ fun CityListScreen(
                 }
             } else {
                 LazyColumn {
-                    items(uiState.savedCities) { city ->
+                    items(uiState.savedCities, key = { "${it.name},${it.country}" }) { city ->
                         SavedCityItem(
                             city = city,
                             isSelected = city.name == uiState.selectedCityName,

@@ -137,7 +137,7 @@ fun WeatherScreen(
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
-                            items(uiState.dailyForecasts) { forecast ->
+                            items(uiState.dailyForecasts, key = { it.date }) { forecast ->
                                 DailyForecastItem(
                                     forecast = forecast,
                                     modifier = Modifier.fillMaxWidth()
