@@ -1,5 +1,7 @@
 # Local configuration — never commit
 local.properties
+*.keystore
+*.jks
 
 # Gradle
 .gradle/
