@@ -18,5 +18,5 @@ object CoroutineModule {
     @Singleton
     @ApplicationScope
     fun provideApplicationScope(): CoroutineScope =
-        CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        CoroutineScope(SupervisorJob() + Dispatchers.Default)
 }
