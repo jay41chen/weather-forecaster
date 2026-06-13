@@ -14,12 +14,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -79,23 +78,7 @@ class WeatherRepositoryImplTest {
     // ---------- sync() ----------
 
     @Test
-    fun `sync skips network when cache is fresh (within 30 minutes)`() = runTest {
-        // lastUpdated is current time -> cache is fresh
-        coEvery { weatherDao.getLastUpdated(cityName) } returns System.currentTimeMillis()
-
-        val result = repository.sync(cityName)
-
-        assertTrue(result is Resource.Success)
-        // API should never be called
-        coVerify(exactly = 0) { api.getCurrentWeather(any()) }
-        coVerify(exactly = 0) { api.getForecast(any()) }
-    }
-
-    @Test
-    fun `sync fetches from network when cache is stale (older than 30 minutes)`() = runTest {
-        // lastUpdated is 31 minutes ago -> cache is stale
-        val staleTime = System.currentTimeMillis() - 31 * 60_000L
-        coEvery { weatherDao.getLastUpdated(cityName) } returns staleTime
+    fun `sync fetches from API and persists to Room`() = runTest {
         coEvery { api.getCurrentWeather(cityName) } returns sampleWeather
         coEvery { api.getForecast(cityName) } returns sampleForecastResult
 
@@ -108,21 +91,7 @@ class WeatherRepositoryImplTest {
     }
 
     @Test
-    fun `sync fetches from network when no cache exists (lastUpdated is null)`() = runTest {
-        coEvery { weatherDao.getLastUpdated(cityName) } returns null
-        coEvery { api.getCurrentWeather(cityName) } returns sampleWeather
-        coEvery { api.getForecast(cityName) } returns sampleForecastResult
-
-        val result = repository.sync(cityName)
-
-        assertTrue(result is Resource.Success)
-        coVerify(exactly = 1) { api.getCurrentWeather(cityName) }
-        coVerify(exactly = 1) { api.getForecast(cityName) }
-    }
-
-    @Test
     fun `sync returns Error when network call fails`() = runTest {
-        coEvery { weatherDao.getLastUpdated(cityName) } returns null
         coEvery { api.getCurrentWeather(cityName) } throws IOException("No internet")
 
         val result = repository.sync(cityName)
@@ -153,7 +122,6 @@ class WeatherRepositoryImplTest {
             daily = listOf(dailyForecast)
         )
 
-        coEvery { weatherDao.getLastUpdated(cityName) } returns null
         coEvery { api.getCurrentWeather(cityName) } returns sampleWeather
         coEvery { api.getForecast(cityName) } returns forecastResult
 
@@ -164,24 +132,25 @@ class WeatherRepositoryImplTest {
         coVerify(exactly = 1) { weatherDao.replaceHourlyForecasts(cityName, any()) }
     }
 
+    // ---------- getCurrentWeatherByCoords() ----------
+
     @Test
-    fun `concurrent sync calls for same city deduplicate to single network request`() = runTest {
-        val latch = CompletableDeferred<Unit>()
-        coEvery { weatherDao.getLastUpdated(cityName) } returns null
-        coEvery { api.getCurrentWeather(cityName) } coAnswers { latch.await(); sampleWeather }
-        coEvery { api.getForecast(cityName) } returns sampleForecastResult
+    fun `getCurrentWeatherByCoords returns weather and persists`() = runTest {
+        coEvery { api.getCurrentWeatherByCoords(25.0, 121.5) } returns sampleWeather
 
-        // Both jobs run eagerly (UnconfinedTestDispatcher) to their first suspension point.
-        // job1 creates the inFlight Deferred and suspends on deferred.await().
-        // job2 finds the same Deferred already in inFlight and suspends on the same deferred.await().
-        val job1 = async { repository.sync(cityName) }
-        val job2 = async { repository.sync(cityName) }
+        val result = repository.getCurrentWeatherByCoords(25.0, 121.5)
 
-        latch.complete(Unit)
+        assertEquals(sampleWeather, result)
+        coVerify { weatherDao.insertCurrentWeather(any()) }
+    }
 
-        assertTrue(job1.await() is Resource.Success)
-        assertTrue(job2.await() is Resource.Success)
-        coVerify(exactly = 1) { api.getCurrentWeather(cityName) }
+    @Test
+    fun `getCurrentWeatherByCoords returns null on exception`() = runTest {
+        coEvery { api.getCurrentWeatherByCoords(any(), any()) } throws IOException("fail")
+
+        val result = repository.getCurrentWeatherByCoords(25.0, 121.5)
+
+        assertNull(result)
     }
 
     // ---------- observeCurrentWeather() ----------
@@ -205,6 +174,6 @@ class WeatherRepositoryImplTest {
 
         val result = repository.observeCurrentWeather(cityName).first()
 
-        assertEquals(null, result)
+        assertNull(result)
     }
 }
