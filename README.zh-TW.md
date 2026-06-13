@@ -64,6 +64,16 @@ npm install && npm start
 
 伺服器在 port 3000 運行。在 Android 模擬器上 App 會自動連線。如果是實體裝置且在同一個 WiFi，請把伺服器網址改成你電腦的區域網路 IP。
 
+<details>
+<summary>更換伺服器 port</summary>
+
+如果 port 3000 已被佔用，可以在兩個地方修改：
+
+1. **伺服器端** — 修改 `server/.env` 中的 `PORT`（例如 `PORT=4000`），或啟動時指定：`PORT=4000 npm start`
+2. **App 端** — 修改 `core/src/main/assets/feature_defaults.json` 中的 `socket_url`（例如 `http://10.0.2.2:4000`）。如果是實體裝置，請把 `10.0.2.2` 換成你電腦的區域網路 IP。
+
+</details>
+
 ## 技術棧
 
 - **語言**：Kotlin

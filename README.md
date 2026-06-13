@@ -64,6 +64,16 @@ npm install && npm start
 
 The server runs on port 3000. The app connects automatically when running on an Android emulator. For a physical device on the same WiFi, replace the server URL with your computer's local IP address.
 
+<details>
+<summary>Changing the server port</summary>
+
+If port 3000 is already in use, you can change it in two places:
+
+1. **Server** — set `PORT` in `server/.env` (e.g. `PORT=4000`), or pass it at startup: `PORT=4000 npm start`
+2. **App** — update `socket_url` in `core/src/main/assets/feature_defaults.json` to match (e.g. `http://10.0.2.2:4000`). For a physical device, use your computer's local IP instead of `10.0.2.2`.
+
+</details>
+
 ## Tech Stack
 
 - **Language**: Kotlin
