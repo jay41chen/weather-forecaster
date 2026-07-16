@@ -86,3 +86,39 @@ All tasks T1–T6 implemented on branch `docs/accuracy-fixes`, base `develop` @
 None — all six tasks complete, PR Acceptance Checklist items runnable
 in this environment have been run and passed. Remaining checklist item
 (independent `/review-diff`) is the orchestrator's responsibility.
+
+## Session addendum — audit, identity fix & ship (2026-07-16)
+
+### PR
+
+https://github.com/jay41chen/weather-forecaster/pull/2 — covers all
+tasks T1-T6 (10 commits, tip `f59b57e`).
+
+### Review findings and resolutions
+
+- Full-branch context-isolated audit: **pass**, 0 must-fix. Three
+  cosmetic should-consider findings (Project Structure `#` comment
+  column drift in both READMEs, nested parentheses in Prerequisites
+  item 1, missing "and" in the AI-Assisted Development paragraph) —
+  all fixed in `bd3f801` (originally `081d8b1` pre-rebase), re-audited
+  **pass** with zero findings.
+- Non-blocking notes accepted without change: `isNullOrEmpty()` kept
+  over `isNullOrBlank()` (matches the approved proposal verbatim;
+  whitespace-only KEYSTORE_PATH is unreachable via the workflow).
+
+### Deviations / incidents
+
+- **Author identity fix:** all branch commits (and develop's two
+  README commits) were initially authored as the company identity
+  `jay.chen@swag.live` because the repo had no local git config. Fixed
+  via `--reset-author` rebase (tree-identical, verified by empty
+  `git diff 081d8b1 bd3f801`) and a develop rewrite + force push
+  (`aa31dfe` → `e5aa9a6`); base-SHA references in this doc and
+  proposal.md updated accordingly in `f59b57e`. Both steps re-audited
+  **pass**. Repo-local git config now pins
+  `Jay Chen <mavs141@gmail.com>`.
+
+### Next
+
+Merge PR #2. No follow-up tasks; deferred items remain LICENSE and
+README screenshots (explicit Non-Goals of this proposal).
