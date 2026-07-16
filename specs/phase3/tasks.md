@@ -61,7 +61,7 @@ cd server && npm install && npm start
 - `core/data/src/main/java/com/weather/core/data/realtime/SocketIORealtimeServiceImpl.kt`
 
 **Files (modify):**
-- `core/data/build.gradle.kts` — add `io.socket:socket.io-client:2.1.0` dependency (exclude `org.json`).
+- `core/data/build.gradle.kts` — add `io.socket:socket.io-client:2.1.0` dependency (exclude `org.json`). <!-- actual: 2.1.2, matching design §0.5 -->
 - `core/data/build.gradle.kts` — add `BuildConfig.SOCKET_URL` field.
 - `gradle.properties` — add `SOCKET_URL=http://10.0.2.2:3000`.
 - `core/data/src/main/java/com/weather/core/data/di/DataModule.kt` — add `@Binds` for `WeatherRealtimeService`.

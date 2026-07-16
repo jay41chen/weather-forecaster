@@ -1,6 +1,6 @@
 # Progress
 
-> Last updated: 2026-06-11
+> Last updated: 2026-07-16
 
 ## Status
 
@@ -11,6 +11,41 @@
 | Phase 3: Socket.IO Realtime | Complete | All 6 tasks done |
 
 ## Session Log
+
+### 2026-07-16 (backfill & corrections)
+
+This is a backfill entry: the log below stopped at "Next: code refinement"
+(2026-06-11, session 3) although ~15 more commits landed since. Recorded
+here, append-only, without editing the prior entries.
+
+- Clean Architecture refactor (`3a6764c`): moved cache TTL and per-city
+  request dedup out of `WeatherRepositoryImpl` and into a dedicated
+  `SyncWeatherUseCase` (`cityMutexes` ConcurrentHashMap +
+  `computeIfAbsent` + `lastSynced` TTL).
+- Test suite grown from 5 to 12 test files (`4e4285a`).
+- CI/CD workflows added (`3ebd2b4`): PR checks + tagged-release build.
+- Review follow-ups PR #1–#4: LazyColumn item keys (`371c8cd`), dead
+  `isOffline`/`showOfflineBanner` removal (`be46246`), `ApplicationScope`
+  dispatcher `Main.immediate` → `Default` (`71d4193`), `BACKOFF_DELAYS`
+  index-out-of-bounds guard (`268cb3d`).
+- Release signing config + R8 minification + AAB output (`7ff0115`,
+  `ab96dda`).
+- Feature flag properties made reactive via `StateFlow` (`4270cbd`).
+
+Explicit supersession notes (prior entries below are left unedited):
+- The dedup test noted on 2026-06-11 ("`inFlight + mapMutex`" in
+  `WeatherRepositoryImplTest`) now lives in `SyncWeatherUseCaseTest`
+  ('concurrent calls for same city dedup via mutex'); the mechanism is
+  `cityMutexes` + `computeIfAbsent` + `lastSynced` TTL in
+  `SyncWeatherUseCase`, not `inFlight+mapMutex` in the repository.
+- "Deferred: Docker" (2026-06-11, session 2) is done —
+  `server/Dockerfile` + `server/docker-compose.yml` exist.
+- `usesCleartextTraffic="true"` (2026-06-11, session 3) was later
+  replaced by `android:networkSecurityConfig="@xml/network_security_config"`
+  (`app/src/main/AndroidManifest.xml`).
+- Clock-injection deferral (2026-06-11): the TTL moved to
+  `SyncWeatherUseCase`; a clock is still not injected (uses
+  `System.currentTimeMillis()`).
 
 ### 2026-06-11 (session 3)
 

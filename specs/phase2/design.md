@@ -7,6 +7,17 @@
 
 ---
 
+> **Implementation drift** (see `specs/progress.md`): `LogPort` methods
+> take no `tag` parameter — tag is bound at `LogPortFactory.create(tag)`;
+> `LogModule` lives in `app/src/main/java/com/weather/app/di/`, and the
+> Timber adapters were later moved to `core:data` (see
+> `specs/proposals/logger-module/proposal.md`); `FeatureTogglePort` is
+> now `val configs: StateFlow<Map<String, Any>>` + `suspend refresh()`
+> with `isEnabled()` / `getString()` extension functions;
+> `LocalJsonFeatureToggleAdapter` was replaced by
+> `RemoteFeatureToggleAdapter` (`core:data`) and
+> `FeatureToggleMockAdapter` (`core`).
+
 ## 1. What Changes
 
 | Module | Change Type | Description |
