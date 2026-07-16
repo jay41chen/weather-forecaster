@@ -1,7 +1,7 @@
 # Proposal: Documentation Accuracy Fixes (+ signing-fallback bug fix)
 
 > Type: Enhancement (documentation accuracy). One PR against `develop`.
-> Status: Approved — implementing.
+> Status: Implemented (branch docs/accuracy-fixes).
 
 ## Motivation
 

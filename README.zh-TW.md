@@ -19,7 +19,7 @@ Android 天氣應用程式，採用 Clean Architecture、Jetpack Compose 與 Ope
 
 ### 事前準備
 
-1. **Android Studio** — 從 [developer.android.com/studio](https://developer.android.com/studio) 下載（Koala 2024.1.1 或更新版本（AGP 8.5.2 所需））。安裝後即內建 JDK 17 與 Android SDK，不需額外安裝。
+1. **Android Studio** — 從 [developer.android.com/studio](https://developer.android.com/studio) 下載（Koala 2024.1.1 或更新版本；AGP 8.5.2 所需）。安裝後即內建 JDK 17 與 Android SDK，不需額外安裝。
 2. **OpenWeatherMap API 金鑰** — 到 [openweathermap.org/api](https://openweathermap.org/api) 免費註冊，從後台複製你的金鑰。
 3. **Docker 或 Node.js 18+**（選用）— 只有在需要執行即時推播伺服器時才需要。
 
@@ -166,11 +166,11 @@ npm install && npm start
 app/                        # 組合根：Hilt 模組、導航、Application
 core/                       # Port 介面、Domain 模型、日誌
   core/data/                # 實作層（Retrofit、Room、Socket.IO）
-  core/domain/               # Use Cases（商業邏輯：TTL、去重、同步）
-  core/ui/                   # 共用 Compose 元件（ErrorContent、LoadingContent）
+  core/domain/              # Use Cases（商業邏輯：TTL、去重、同步）
+  core/ui/                  # 共用 Compose 元件（ErrorContent、LoadingContent）
 feature/
-  feature/weather/           # 天氣詳情畫面 + ViewModel
-  feature/citylist/          # 城市列表 / 選擇畫面 + ViewModel
+  feature/weather/          # 天氣詳情畫面 + ViewModel
+  feature/citylist/         # 城市列表 / 選擇畫面 + ViewModel
 demo/                       # 獨立 Demo App，用於功能開關與日誌實驗；用 `./gradlew :demo:installDebug` 或 `demo` run configuration 執行
 server/                     # Socket.IO 推播伺服器（Node.js + Docker）
 ```

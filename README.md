@@ -19,7 +19,7 @@ Android weather app built with Clean Architecture, Jetpack Compose, and the Open
 
 ### Prerequisites
 
-1. **Android Studio** — download from [developer.android.com/studio](https://developer.android.com/studio) (Koala 2024.1.1 or later (required by AGP 8.5.2)). It bundles JDK 17 and the Android SDK, so no separate install is needed.
+1. **Android Studio** — download from [developer.android.com/studio](https://developer.android.com/studio) (Koala 2024.1.1 or later; required by AGP 8.5.2). It bundles JDK 17 and the Android SDK, so no separate install is needed.
 2. **OpenWeatherMap API key** — sign up for free at [openweathermap.org/api](https://openweathermap.org/api) and copy your key from the dashboard.
 3. **Docker or Node.js 18+** (optional) — only needed if you want to run the real-time push server.
 
@@ -166,11 +166,11 @@ All arrows point inward — outer layers depend on inner layers, never the rever
 app/                        # Composition root: Hilt modules, navigation, Application
 core/                       # Port interfaces, domain models, logging
   core/data/                # Adapter implementations (Retrofit, Room, Socket.IO)
-  core/domain/               # Use cases (business rules: TTL, dedup, sync)
-  core/ui/                   # Shared Compose components (ErrorContent, LoadingContent)
+  core/domain/              # Use cases (business rules: TTL, dedup, sync)
+  core/ui/                  # Shared Compose components (ErrorContent, LoadingContent)
 feature/
-  feature/weather/           # Weather detail screen + ViewModel (feature module)
-  feature/citylist/          # City list / selection screen + ViewModel (feature module)
+  feature/weather/          # Weather detail screen + ViewModel (feature module)
+  feature/citylist/         # City list / selection screen + ViewModel (feature module)
 demo/                       # Standalone demo app for feature-toggle and logging experiments; run with `./gradlew :demo:installDebug` or the `demo` run configuration.
 server/                     # Socket.IO push server (Node.js + Docker)
 ```
@@ -203,6 +203,6 @@ using a structured Think → Do workflow: findings are discussed and
 prioritized before any code is written, then implemented as minimal,
 focused commits. This covered a full multi-dimension code review
 (correctness, concurrency, architecture, test coverage), race condition
-fixes, Clean Architecture refactoring.
+fixes, and Clean Architecture refactoring.
 
 See [TOOLS.md](TOOLS.md) for the workflow and a findings summary.
