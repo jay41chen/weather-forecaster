@@ -179,3 +179,13 @@ server/                     # Socket.IO 推播伺服器（Node.js + Docker）
 ```
 
 共 12 個測試檔案，涵蓋 ViewModel、Use Cases 與 Repository。
+
+## AI 輔助開發
+
+本專案使用 [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+以結構化的 Think → Do 工作流程開發：先討論並排序發現的問題，才動手寫程式，
+再以最小、聚焦的 commit 逐一實作。過程涵蓋完整的多維度程式碼審查
+（正確性、並行處理、架構、測試覆蓋率）、race condition 修復、
+Clean Architecture 重構，並將測試套件從 5 個擴充到 12 個測試檔案。
+
+完整的工作流程與審查發現請見 [TOOLS.md](TOOLS.md)。
