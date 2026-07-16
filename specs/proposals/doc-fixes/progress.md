@@ -7,7 +7,7 @@
 ### Done
 
 All tasks T1–T6 implemented on branch `docs/accuracy-fixes`, base `develop` @
-`aa31dfe`, one commit per task:
+`e5aa9a6`, one commit per task:
 
 - **T1** — `app/build.gradle.kts`: signing-config guard changed from
   `if (keystorePath != null)` to `if (!keystorePath.isNullOrEmpty())`.
@@ -78,7 +78,7 @@ All tasks T1–T6 implemented on branch `docs/accuracy-fixes`, base `develop` @
   borders match the English diagrams' widths exactly; not committed
   anywhere in the repo (scratch tooling only).
 - Worktree HEAD was stale at session start (`52c808c`, a diverged
-  branch, not an ancestor of `develop`); checked out `aa31dfe` before
+  branch, not an ancestor of `develop`); checked out `e5aa9a6` before
   branching, per the SETUP instructions' fallback path.
 
 ### Next

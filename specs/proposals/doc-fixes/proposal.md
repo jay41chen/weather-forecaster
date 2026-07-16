@@ -41,7 +41,7 @@ review stated — `492917a` does not exist in this repository's history.
 
 ## Current State
 
-Verified facts (file:line references are as of `develop` @ `aa31dfe`):
+Verified facts (file:line references are as of `develop` @ `e5aa9a6`):
 
 1. **Signing fallback is broken, and the README claim is false.**
    `.github/workflows/release.yml:33` sets
@@ -210,7 +210,7 @@ Order: T1 (code) → T2/T3 (READMEs, T3 depends on T2 text) → T4-T6
   from *build failure* to *debug-signed release build*, which is the
   documented intent. Rollback: revert the one-line change.
 - **Hash-drift risk (T4):** The commit hashes baked into the TOOLS.md
-  findings table were verified on `develop` @ `aa31dfe`
+  findings table were verified on `develop` @ `e5aa9a6`
   (2026-07-16). If `develop` history is rewritten before
   implementation, the hashes must be re-verified in Think mode and this
   proposal updated — the implementation task itself must not "look
@@ -257,7 +257,7 @@ Cross-task contract values (verbatim, not to be altered):
   key `socket_url`.
 - Socket events: `subscribe`, `weather_update`, `weather_alert`.
 - Actual commit hashes (verified via `git log` on `develop` @
-  `aa31dfe`): see table in T4.
+  `e5aa9a6`): see table in T4.
 
 ### T1 — Fix release signing fallback (code change)
 
@@ -443,7 +443,7 @@ Cross-task contract values (verbatim, not to be altered):
      tests, ports & adapters compliance).
   4. Add a **Findings & Fixes** table with these verified rows
      (issue → severity → commit). Hashes verified on `develop` @
-     `aa31dfe`; if history is rewritten before implementation, refresh
+     `e5aa9a6`; if history is rewritten before implementation, refresh
      in Think mode first:
 
      | Finding | Severity | Fix commit |
