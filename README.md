@@ -180,3 +180,15 @@ Release signing is configured via repository secrets. Without secrets, the build
 ```
 
 12 test files covering ViewModels, use cases, and repositories.
+
+## AI-Assisted Development
+
+This project was built with [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+using a structured Think → Do workflow: findings are discussed and
+prioritized before any code is written, then implemented as minimal,
+focused commits. This covered a full multi-dimension code review
+(correctness, concurrency, architecture, test coverage), race condition
+fixes, Clean Architecture refactoring, and growing the test suite from
+5 to 12 test files.
+
+See [TOOLS.md](TOOLS.md) for the complete workflow and findings.
