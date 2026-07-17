@@ -6,6 +6,15 @@
 
 ---
 
+> **Implementation drift** (see `specs/progress.md`): the API key comes
+> from the `OPEN_WEATHER_API_KEY` env var with `local.properties`
+> fallback (`core/data/build.gradle.kts`), not `gradle.properties` /
+> `findProperty` (§3.10, §9); `WeatherRepository` has no `forceSync` —
+> staleness/TTL moved to `SyncWeatherUseCase`, and
+> `getCurrentWeatherByCoords` was added; `app` additionally depends on
+> `core:domain` (see the "Dependency Graph" section below); the
+> deliverable file is `TOOLS.md` (originally planned as `AI_TOOLS.md`).
+
 ## 1. Module Structure
 
 ```
@@ -762,15 +771,17 @@ Logic in `CityRepositoryImpl.initializeIfNeeded()`, called from coroutine in `Ap
 
 ## 10. Phase 1 Deliverables Checklist
 
-- [ ] `./gradlew assembleDebug` passes
-- [ ] App launches, shows London weather by default
-- [ ] Can switch city from city list
-- [ ] Pull-to-refresh works
-- [ ] Offline: shows cached data after first load
-- [ ] Search cities via geocoding API
-- [ ] Error state shown when no network and no cache
-- [ ] `README.md` with setup instructions
-- [ ] `AI_TOOLS.md` documenting tool usage
+> — all Phase 1 deliverables were completed.
+
+- [x] `./gradlew assembleDebug` passes
+- [x] App launches, shows London weather by default
+- [x] Can switch city from city list
+- [x] Pull-to-refresh works
+- [x] Offline: shows cached data after first load
+- [x] Search cities via geocoding API
+- [x] Error state shown when no network and no cache
+- [x] `README.md` with setup instructions
+- [x] `TOOLS.md` (originally planned as `AI_TOOLS.md`) documenting tool usage
 
 ---
 

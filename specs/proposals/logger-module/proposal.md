@@ -1,5 +1,7 @@
 # Logger Module Enhancement
 
+> Status: Implemented — TimberLogAdapter/TimberLogPortFactory moved to core:data/logging with RedactingLogPort and LogPortHttpLogger; CompositeLogPort/CompositeLogPortFactory added to :core (not yet wired in DI — single-consumer stage as planned).
+
 ## Motivation
 
 三個問題驅動這次改動：

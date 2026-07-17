@@ -17,6 +17,8 @@
 6. **LogPort calls** — Use `logFactory.create("SocketIO")` at construction; subsequent calls are `log.i("message")` / `log.d("message", mapOf(...))`, not `log.i("tag", "message")`.
 7. **SOCKET_URL in `gradle.properties`** — compile-time `BuildConfig` field, not remote config. For production, URL should come from remote config / `FeatureTogglePort` for dynamic switching. For this demo, build-time default (`http://10.0.2.2:3000`) is sufficient — same pattern as API keys in `local.properties`.
 
+> **Superseded:** SOCKET_URL moved from compile-time BuildConfig to the runtime "socket_url" key in core/src/main/assets/feature_defaults.json (see specs/progress.md, 2026-06-11 session 2).
+
 ---
 
 ## 1. What Changes
@@ -177,6 +179,8 @@ In `:core:data/build.gradle.kts`:
 ```kotlin
 buildConfigField("String", "SOCKET_URL", "\"${project.findProperty("SOCKET_URL") ?: "http://10.0.2.2:3000"}\"")
 ```
+
+> **Superseded:** SOCKET_URL moved from compile-time BuildConfig to the runtime "socket_url" key in core/src/main/assets/feature_defaults.json (see specs/progress.md, 2026-06-11 session 2).
 
 In `gradle.properties`:
 ```
@@ -420,26 +424,26 @@ WeatherViewModel ← GetCurrentWeatherUseCase ← WeatherRepository.observe ← 
 
 ## 8. Phase 3 Deliverables Checklist
 
-- [ ] `cd server && npm start` runs without error
-- [ ] App connects to Socket.IO on launch (check Logcat)
-- [ ] Server logs show subscription for selected city
-- [ ] When server pushes update → UI reflects change without pull-to-refresh
-- [ ] `socket_io_enabled = false` → app works without Socket.IO (no crash)
-- [ ] `weather_alerts_enabled = true` → alert snackbar shows on dramatic change
-- [ ] Server handles multiple clients and disconnect cleanup
-- [ ] `./gradlew assembleDebug` still passes
+- [x] `cd server && npm start` runs without error
+- [x] App connects to Socket.IO on launch (check Logcat)
+- [x] Server logs show subscription for selected city
+- [x] When server pushes update → UI reflects change without pull-to-refresh
+- [x] `socket_io_enabled = false` → app works without Socket.IO (no crash)
+- [x] `weather_alerts_enabled = true` → alert snackbar shows on dramatic change
+- [x] Server handles multiple clients and disconnect cleanup
+- [x] `./gradlew assembleDebug` still passes
 
 ---
 
 ## 9. Final Project Deliverables (All Phases)
 
-- [ ] Working Android app with offline-first weather display
-- [ ] Clean modular architecture (`:core` → `:core:data` → `:core:domain` → `:feature:*`)
-- [ ] Ports & Adapters: any data source swappable via one `@Binds` change
-- [ ] Log Kit with structured logging (Timber, swappable)
-- [ ] Feature Toggle system (local JSON, swappable to Firebase)
-- [ ] Real-time updates via Socket.IO
-- [ ] Working Node.js push server
-- [ ] `README.md` with architecture overview, setup instructions, screenshots
-- [ ] `AI_TOOLS.md` documenting tool usage
-- [ ] Clean git history
+- [x] Working Android app with offline-first weather display
+- [x] Clean modular architecture (`:core` → `:core:data` → `:core:domain` → `:feature:*`)
+- [x] Ports & Adapters: any data source swappable via one `@Binds` change
+- [x] Log Kit with structured logging (Timber, swappable)
+- [x] Feature Toggle system (local JSON, swappable to Firebase)
+- [x] Real-time updates via Socket.IO
+- [x] Working Node.js push server
+- [x] `README.md` with architecture overview, setup instructions, screenshots
+- [x] `TOOLS.md` (originally planned as `AI_TOOLS.md`) documenting tool usage
+- [x] Clean git history
